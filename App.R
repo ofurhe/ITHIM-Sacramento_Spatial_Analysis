@@ -9,6 +9,7 @@
 # library definitions
 library(shiny)
 library(leaflet)
+library(sf)
 
 ###################### ITHIM application for Equity Analysis - Web Interface - Shiny App - Server/UI ######################
 # app.R has 2 main components, UI and Server.
