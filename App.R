@@ -70,13 +70,13 @@ ui <- tabsetPanel(
                        title = "2016 MTP/SCS Adopted Plan for Future Years <br>
               Absolute Change in Deaths",
                        labFormat = labelFormat(digits = 3),
-                       opacity = 1
+                       opacity = .8
              )%>%
              #Add Layers
              addPolygons(data = CA_HO,
                          popup=SacHOpopup,
                          fillColor = ~palfuture(Abs_death_Comb_2020),
-                         fillOpacity = 1,
+                         fillOpacity = .8,
                          color = "white",
                          weight = 1,
                          group = "2020"
@@ -84,7 +84,7 @@ ui <- tabsetPanel(
              addPolygons(data = CA_HO,
                          popup=SacHOpopup,
                          fillColor = ~palfuture(Abs_death_Comb_2027),
-                         fillOpacity = 1,
+                         fillOpacity = .8,
                          color = "white",
                          weight = 1,
                          group = "2027"
@@ -92,7 +92,7 @@ ui <- tabsetPanel(
              addPolygons(data = CA_HO,
                          popup=SacHOpopup,
                          fillColor = ~palfuture(Abs_death_Comb_2036),
-                         fillOpacity = 1,
+                         fillOpacity = .8,
                          color = "white",
                          weight = 1,
                          group = "2036"
@@ -108,14 +108,6 @@ ui <- tabsetPanel(
     leaflet(CA_HO) %>%
       setView(-121, 39, 8) %>%
       addProviderTiles("CartoDB.Positron")%>%
-      addPolygons(data = CA_HO,
-                  popup=SacHOpopup,
-                  fillColor = ~palfuture(Abs_death_Comb_2020),
-                  fillOpacity = 0.8,
-                  color = "white",
-                  weight = 1,
-                  group = "2020"
-                  )%>%
       #Set up Legend for Scenarios
       addLegend("bottomright", 
                 pal = palScenario, 
