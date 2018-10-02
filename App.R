@@ -20,23 +20,6 @@ library(leaflet)
 
 # User Interface ============================================================================================================
 # Uses fluidPage and navbar for Layout
-ui <- fluidPage(
-  tags$style(type = "text/css", "#map {height: calc(100vh - 80px) !important;}"),
-
-
-  titlePanel("ITHIM-Sacramento Equity Analysis Tool"),
-#Creates Title Tab
-  tabPanel("Map",
-           #   mainPanel(
-               #Display Basemap
-               leafletOutput('Basemap'),
-               #Display Choropleth
-               plotOutput("Map1")
-  )
-)
-
-# Server Function ===========================================================================================================
-
 # Reading geojson
 CA_HO<-st_read("SACOG_HO_01_02.geojson")
 CA_HO <- sf::st_transform(CA_HO, "+proj=longlat +datum=WGS84") 
@@ -56,12 +39,127 @@ SacHOpopup <- paste0("Zip Code: ", CA_HO$ZCTA5CE10, "<br>"
                      ,"Absolute Change in Deaths 2020: ", CA_HO$Abs_death_Comb_2020, "<br>",
                      "Absolute Change in Deaths 2027: ", CA_HO$Abs_death_Comb_2027, "<br>",
                      "Absolute Change in Deaths 2036: ", CA_HO$Abs_death_Comb_2036
-                     )
-SacHOpopup_Scenarios <- paste0("Zip Code: ", CA_HO$ZCTA5CE10 , "<br>"
-                     ,"Absolute Change in Deaths Scenario 1: ", CA_HO$Abs_death_Comb_S1, "<br>",
-                     "Absolute Change in Deaths Scenario 2: ", CA_HO$Abs_death_Comb_S2, "<br>",
-                     "Absolute Change in Deaths Scenario 3: ", CA_HO$Abs_death_Comb_S3
 )
+SacHOpopup_Scenarios <- paste0("Zip Code: ", CA_HO$ZCTA5CE10 , "<br>"
+                               ,"Absolute Change in Deaths Scenario 1: ", CA_HO$Abs_death_Comb_S1, "<br>",
+                               "Absolute Change in Deaths Scenario 2: ", CA_HO$Abs_death_Comb_S2, "<br>",
+                               "Absolute Change in Deaths Scenario 3: ", CA_HO$Abs_death_Comb_S3
+)
+
+ui <- tabsetPanel(
+  #Creates Title Tab
+  # titlePanel("ITHIM-Sacramento Spatial Analysis Tool"),
+
+  # navbarPage(
+  # "ITHIM-SACOG",
+          
+# Creates Future Map Tab
+    # Creates About Page
+    tabPanel("About",
+             includeHTML("ITHIM_Spatial_About.html")# Pulls About page from Markdown File
+    ),
+  tabPanel("2016 MTP/SCS Adopted Plan in Future Years",
+           leaflet(CA_HO) %>%
+             setView(-121, 39, 8) %>%
+             addProviderTiles("CartoDB.Positron")%>%
+             #Set up Legend for Future
+             addLegend("topright",
+                       pal = palfuture,
+                       values = ~c(FutureMin,FutureMax),
+                       title = "2016 MTP/SCS Adopted Plan for Future Years <br>
+              Absolute Change in Deaths",
+                       labFormat = labelFormat(digits = 3),
+                       opacity = 1
+             )%>%
+             #Add Layers
+             addPolygons(data = CA_HO,
+                         popup=SacHOpopup,
+                         fillColor = ~palfuture(Abs_death_Comb_2020),
+                         fillOpacity = 0.8,
+                         color = "white",
+                         weight = 1,
+                         group = "2020"
+             )%>%
+             addPolygons(data = CA_HO,
+                         popup=SacHOpopup,
+                         fillColor = ~palfuture(Abs_death_Comb_2027),
+                         fillOpacity = 0.8,
+                         color = "white",
+                         weight = 1,
+                         group = "2027"
+             )%>%
+             addPolygons(data = CA_HO,
+                         popup=SacHOpopup,
+                         fillColor = ~palfuture(Abs_death_Comb_2036),
+                         fillOpacity = 0.8,
+                         color = "white",
+                         weight = 1,
+                         group = "2036"
+             )%>%
+             #Add Layers Radio Buttons
+             addLayersControl(
+               baseGroups= c("2020", "2027", "2036"),
+               position = "bottomleft",
+               options = layersControlOptions(collapsed = FALSE)
+             )
+          ),
+  tabPanel( "Planning Scenarios in 2036",
+    leaflet(CA_HO) %>%
+      setView(-121, 39, 8) %>%
+      addProviderTiles("CartoDB.Positron")%>%
+      addPolygons(data = CA_HO,
+                  popup=SacHOpopup,
+                  fillColor = ~palfuture(Abs_death_Comb_2020),
+                  fillOpacity = 0.8,
+                  color = "white",
+                  weight = 1,
+                  group = "2020"
+                  )%>%
+      #Set up Legend for Scenarios
+      addLegend("bottomright", 
+                pal = palScenario, 
+                values = ~c(-15,15),
+                title = "Planning Scenarios in 2036 <br>
+                Absolute Change in Deaths",
+                labFormat = labelFormat(digits = 3),
+                opacity = 1
+      )%>%
+      # Add Scenario Layers
+      addPolygons(data = CA_HO,
+                  popup=SacHOpopup_Scenarios,
+                  fillColor = ~palScenario(Abs_death_Comb_S1),
+                  fillOpacity = 0.8,
+                  color = "white",
+                  weight = 1,
+                  group = "Scenario 1"
+      )%>%
+      addPolygons(data = CA_HO,
+                  popup=SacHOpopup_Scenarios,
+                  fillColor = ~palScenario(Abs_death_Comb_S2),
+                  fillOpacity = 0.8,
+                  color = "white",
+                  weight = 1,
+                  group = "Scenario 2"
+      )%>%
+      addPolygons(data = CA_HO,
+                  popup=SacHOpopup_Scenarios,
+                  fillColor = ~palScenario(Abs_death_Comb_S3),
+                  fillOpacity = 0.8,
+                  color = "white",
+                  weight = 1,
+                  group = "Scenario 3"
+      )%>%
+      
+      #Add Layers Radio Buttons
+      addLayersControl(
+        baseGroups= c("Scenario 1", "Scenario 2", "Scenario 3"),
+        position = "bottomleft",
+        options = layersControlOptions(collapsed = FALSE)
+        )
+      )
+)
+
+# Server Function ===========================================================================================================
 
 server <- function(input, output, session){
   
@@ -72,89 +170,9 @@ server <- function(input, output, session){
       addProviderTiles("CartoDB.Positron")
     
   })
-#Set up Choropleth
-  output$Map1 <- renderPlot({
-  leafletProxy("Basemap", data = CA_HO)%>%
-#Set up Legend for Future
-    addLegend("topright", 
-              pal = palfuture, 
-              values = ~c(FutureMin,FutureMax),
-              title = "2016 MTP/SCS Adopted Plan for Future Years <br>
-              Absolute Change in Deaths",
-              labFormat = labelFormat(digits = 3),
-              opacity = 1
-    )%>%
-#Add Layers
-      addPolygons(data = CA_HO,
-                  popup=SacHOpopup,
-                  fillColor = ~palfuture(Abs_death_Comb_2020),
-                  fillOpacity = 0.8,
-                  color = "white",
-                  weight = 1,
-                  group = "2020"
-      )%>%
-    addPolygons(data = CA_HO,
-                popup=SacHOpopup,
-                fillColor = ~palfuture(Abs_death_Comb_2027),
-                fillOpacity = 0.8,
-                color = "white",
-                weight = 1,
-                group = "2027"
-    )%>%
-    addPolygons(data = CA_HO,
-                popup=SacHOpopup,
-                fillColor = ~palfuture(Abs_death_Comb_2036),
-                fillOpacity = 0.8,
-                color = "white",
-                weight = 1,
-                group = "2036"
-    )%>%
-    #Set up Legend for Scenarios
-    addLegend("bottomright", 
-              pal = palScenario, 
-              values = ~c(-15,15),
-              title = "Planning Scenarios in 2036 <br>
-              Absolute Change in Deaths",
-              labFormat = labelFormat(digits = 3),
-              opacity = 1
-    )%>%
-# Add Scenario Layers
-    addPolygons(data = CA_HO,
-                popup=SacHOpopup_Scenarios,
-                fillColor = ~palScenario(Abs_death_Comb_S1),
-                fillOpacity = 0.8,
-                color = "white",
-                weight = 1,
-                group = "Scenario 1"
-    )%>%
-    addPolygons(data = CA_HO,
-                popup=SacHOpopup_Scenarios,
-                fillColor = ~palScenario(Abs_death_Comb_S2),
-                fillOpacity = 0.8,
-                color = "white",
-                weight = 1,
-                group = "Scenario 2"
-    )%>%
-    addPolygons(data = CA_HO,
-                popup=SacHOpopup_Scenarios,
-                fillColor = ~palScenario(Abs_death_Comb_S3),
-                fillOpacity = 0.8,
-                color = "white",
-                weight = 1,
-                group = "Scenario 3"
-    )%>%
+  }
 
-#Add Layers Radio Buttons
-    addLayersControl(
-      baseGroups= c("2020", "2027", "2036"
-                    , "Scenario 1", "Scenario 2", "Scenario 3"
-                    ),
-      position = "bottomleft",
-      options = layersControlOptions(collapsed = FALSE)
-    )
-  })
 
-}
 
 
 # App Function ===========================================================================================================
