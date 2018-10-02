@@ -37,14 +37,14 @@ palScenario <-colorNumeric("PuOr" ,-15:15)
 
 # Creating pop-up
 SacHOpopup <- paste0("Zip Code: ", CA_HO$ZCTA5CE10, "<br>"
-                     ,"Absolute Change in Deaths 2020: ", round(CA_HO$Abs_death_Comb_2020, 1), "<br>",
-                     "Absolute Change in Deaths 2027: ", round(CA_HO$Abs_death_Comb_2027, 1), "<br>",
-                     "Absolute Change in Deaths 2036: ", round(CA_HO$Abs_death_Comb_2036, 1)
+                     ,"Total Reduction in Deaths 2020: ", round(CA_HO$Abs_death_Comb_2020, 1), "<br>",
+                     "Total Reduction in Deaths 2027: ", round(CA_HO$Abs_death_Comb_2027, 1), "<br>",
+                     "Total Reduction in Deaths 2036: ", round(CA_HO$Abs_death_Comb_2036, 1)
 )
 SacHOpopup_Scenarios <- paste0("Zip Code: ", CA_HO$ZCTA5CE10 , "<br>"
-                               ,"Absolute Change in Deaths Scenario 1: ", round(CA_HO$Abs_death_Comb_S1, 1), "<br>",
-                               "Absolute Change in Deaths Scenario 2: ", round(CA_HO$Abs_death_Comb_S2, 1), "<br>",
-                               "Absolute Change in Deaths Scenario 3: ", round(CA_HO$Abs_death_Comb_S3, 1)
+                               ,"Total Reduction in Deaths Scenario 1: ", round(CA_HO$Abs_death_Comb_S1, 1), "<br>",
+                               "Total Reduction in Deaths Scenario 2: ", round(CA_HO$Abs_death_Comb_S2, 1), "<br>",
+                               "Total Reduction in Deaths Scenario 3: ", round(CA_HO$Abs_death_Comb_S3, 1)
 )
 
 ui <- tabsetPanel(
